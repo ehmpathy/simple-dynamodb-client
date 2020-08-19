@@ -11,19 +11,19 @@ export const put = async ({
   tableName,
   logDebug,
   item,
-  upsertConditions,
+  putConditions,
 }: {
   tableName: string;
   logDebug: LogMethod;
   item: object;
-  upsertConditions?: SimpleDynamodbPutConditions;
+  putConditions?: SimpleDynamodbPutConditions;
 }) => {
   const dynamodb = getDynamodbClient({ tableName });
   logDebug(`${tableName}.upsert.input`, { item });
   await dynamodb.put({
     input: {
       Item: item, // the item itself
-      ConditionExpression: upsertConditions?.ConditionExpression,
+      ConditionExpression: putConditions?.ConditionExpression,
     },
   });
   logDebug(`${tableName}.upsert.output`, { success: true, item });
