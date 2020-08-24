@@ -49,7 +49,7 @@ export const query = async ({
   attributesToRetrieveInQuery: AttributesToRetrieveInQuery;
   queryConditions: SimpleDynamodbQueryConditions;
   logDebug: LogMethod;
-}): Promise<object[]> => {
+}): Promise<{ [index: string]: any }[]> => {
   // 0. prefix all "attributesToRetrieveInQueries" with "#" to ensure no collisions exist and build up name mapping map
   const prefixedAttributesToRetrieveInQueries = attributesToRetrieveInQuery.map((attr) => `#${attr}`).join(',');
   const attributesToPrefixedAttributesMap = attributesToRetrieveInQuery.reduce(
