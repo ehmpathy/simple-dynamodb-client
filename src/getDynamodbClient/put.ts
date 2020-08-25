@@ -5,7 +5,7 @@ export interface RelevantPutInput {
   ConditionExpression?: DynamoDB.DocumentClient.ConditionExpression;
 }
 
-export const put = async ({
+export const putItem = async ({
   dynamodbClient,
   tableName,
   input,

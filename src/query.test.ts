@@ -18,7 +18,7 @@ jest.mock('aws-sdk', () => {
 const queryMock = new DynamoDB.DocumentClient().query as jest.Mock;
 const queryPromiseMock = new DynamoDB.DocumentClient().query({} as any).promise as jest.Mock;
 
-describe('getSimpleDynamodbDao', () => {
+describe('query', () => {
   beforeEach(() => jest.clearAllMocks());
   it('should be possible to do a simple lookup', async () => {
     // mock the aws-sdk response items

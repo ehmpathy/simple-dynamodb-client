@@ -1,3 +1,4 @@
 export * from './types';
-export * from './query';
-export * from './put';
+export { query, SimpleDynamodbQueryConditions } from './query';
+export { put, SimpleDynamodbPutConditions } from './put';
+export { del as delete, SimpleDynamodbDeleteConditions } from './delete';
