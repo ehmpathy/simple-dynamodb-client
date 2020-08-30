@@ -1,6 +1,6 @@
 {
   "name": "simple-dynamodb-client",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A simple, convenient interface for interacting with dynamodb with best practices.",
   "author": "UladKasach @uladkasach",
   "license": "MIT",
