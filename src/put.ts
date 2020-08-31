@@ -1,6 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 
-import { getDynamodbClient } from './getDynamodbClient/getDynamodbClient';
+import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
 
 export interface SimpleDynamodbPutConditions {
@@ -18,10 +18,10 @@ export const put = async ({
   item: object;
   putConditions?: SimpleDynamodbPutConditions;
 }) => {
-  const dynamodb = getDynamodbClient({ tableName });
   logDebug(`${tableName}.put.input`, { item, conditions: putConditions });
   await dynamodb.put({
     input: {
+      TableName: tableName,
       Item: item, // the item itself
       ConditionExpression: putConditions?.ConditionExpression,
     },

@@ -1,7 +1,19 @@
 import { DynamoDB } from 'aws-sdk';
-import { ConditionExpression, ConsistentRead, ExpressionAttributeNameMap, Key, KeyExpression, ProjectionExpression } from 'aws-sdk/clients/dynamodb';
+import {
+  ConditionExpression,
+  ConsistentRead,
+  ExpressionAttributeNameMap,
+  Key,
+  KeyExpression,
+  ProjectionExpression,
+  TableName,
+} from 'aws-sdk/clients/dynamodb';
 
 export interface RelevantQueryInput {
+  /**
+   * The name of the table containing the requested items.
+   */
+  TableName: TableName;
   /**
    * The name of an index to query. This index can be any local secondary index or global secondary index on the table.
    */
@@ -43,22 +55,12 @@ export interface RelevantQueryInput {
    */
   ExpressionAttributeValues?: { [index: string]: string | number | boolean | null };
 }
-export const query = async ({
-  dynamodbClient,
-  tableName,
-  input,
-}: {
-  dynamodbClient: DynamoDB.DocumentClient;
-  tableName: string;
-  input: RelevantQueryInput;
-}) => {
+export const query = async ({ input }: { input: RelevantQueryInput }) => {
+  const dynamodbClient = new DynamoDB.DocumentClient();
   return dynamodbClient
     .query({
       // return consumed capacity by default
       ReturnConsumedCapacity: 'TOTAL',
-
-      // from :table
-      TableName: tableName,
 
       // where, limit, etc
       ...input,

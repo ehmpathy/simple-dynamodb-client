@@ -1,6 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 
-import { getDynamodbClient } from './getDynamodbClient/getDynamodbClient';
+import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
 
 export interface SimpleDynamodbDeleteConditions {
@@ -19,10 +19,10 @@ export const del = async ({
   key: DynamoDB.DocumentClient.Key;
   deleteConditions?: SimpleDynamodbDeleteConditions;
 }) => {
-  const dynamodb = getDynamodbClient({ tableName });
   logDebug(`${tableName}.delete.input`, { key, conditions: deleteConditions });
   await dynamodb.delete({
     input: {
+      TableName: tableName,
       Key: key, // primary key of item to delete
       ConditionExpression: deleteConditions?.ConditionExpression,
     },

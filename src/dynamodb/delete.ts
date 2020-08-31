@@ -2,6 +2,10 @@ import { DynamoDB } from 'aws-sdk';
 
 export interface RelevantDeleteInput {
   /**
+   * The name of the table from which to delete the item.
+   */
+  TableName: DynamoDB.DocumentClient.TableName;
+  /**
    * A map of attribute names to AttributeValue objects, representing the primary key of the item to delete. For the primary key, you must provide all of the attributes. For example, with a simple primary key, you only need to provide a value for the partition key. For a composite primary key, you must provide values for both the partition key and the sort key.
    */
   Key: DynamoDB.DocumentClient.Key;
@@ -11,22 +15,7 @@ export interface RelevantDeleteInput {
   ConditionExpression?: DynamoDB.DocumentClient.ConditionExpression;
 }
 
-export const deleteItem = async ({
-  dynamodbClient,
-  tableName,
-  input,
-}: {
-  dynamodbClient: DynamoDB.DocumentClient;
-  tableName: string;
-  input: RelevantDeleteInput;
-}) => {
-  await dynamodbClient
-    .delete({
-      // into table
-      TableName: tableName,
-
-      // item, conditions, etc
-      ...input,
-    })
-    .promise();
+export const deleteItem = async ({ input }: { input: RelevantDeleteInput }) => {
+  const dynamodbClient = new DynamoDB.DocumentClient();
+  await dynamodbClient.delete(input).promise();
 };

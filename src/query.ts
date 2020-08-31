@@ -1,6 +1,6 @@
 import { ConsistentRead, IndexName, Key, KeyExpression, PositiveIntegerObject } from 'aws-sdk/clients/dynamodb';
 
-import { getDynamodbClient } from './getDynamodbClient/getDynamodbClient';
+import { dynamodb } from './dynamodb';
 import { AttributesToRetrieveInQuery, LogMethod } from './types';
 
 /**
@@ -46,9 +46,9 @@ export const query = async ({
   queryConditions,
 }: {
   tableName: string;
+  logDebug: LogMethod;
   attributesToRetrieveInQuery: AttributesToRetrieveInQuery;
   queryConditions: SimpleDynamodbQueryConditions;
-  logDebug: LogMethod;
 }): Promise<{ [index: string]: any }[]> => {
   // 0. prefix all "attributesToRetrieveInQueries" with "#" to ensure no collisions exist and build up name mapping map
   const prefixedAttributesToRetrieveInQueries = attributesToRetrieveInQuery.map((attr) => `#${attr}`).join(',');
@@ -59,9 +59,9 @@ export const query = async ({
 
   // 1. execute the query, log params and output
   logDebug(`${tableName}.query.input`, { queryConditions });
-  const dynamodb = getDynamodbClient({ tableName });
   const result = await dynamodb.query({
     input: {
+      TableName: tableName,
       ...queryConditions, // user defined conditions
       ProjectionExpression: prefixedAttributesToRetrieveInQueries, // plus the prefixed projection expression
       ExpressionAttributeNames: attributesToPrefixedAttributesMap, // plus the map to ensure no reserved keyword collisions from dynamo
