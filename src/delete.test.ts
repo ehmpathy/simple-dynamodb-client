@@ -40,6 +40,7 @@ describe('delete', () => {
       TableName: 'spaceship',
       Key: { p: spaceship.registrationNumber },
       ConditionExpression: undefined,
+      ExpressionAttributeValues: undefined,
     });
   });
 });

@@ -4,7 +4,8 @@ import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
 
 export interface SimpleDynamodbPutConditions {
-  ConditionExpression?: DynamoDB.DocumentClient.ConditionExpression;
+  ConditionExpression?: DynamoDB.PutItemInput['ConditionExpression'];
+  ExpressionAttributeValues?: DynamoDB.PutItemInput['ExpressionAttributeValues'];
 }
 
 export const put = async ({
@@ -24,6 +25,7 @@ export const put = async ({
       TableName: tableName,
       Item: item, // the item itself
       ConditionExpression: putConditions?.ConditionExpression,
+      ExpressionAttributeValues: putConditions?.ExpressionAttributeValues,
     },
   });
   logDebug(`${tableName}.put.output`, { success: true, item, conditions: putConditions });

@@ -67,6 +67,17 @@ export const findByUuid = async ({ uuid }: { uuid: string }) => {
 };
 ```
 
+### transaction
+
+```ts
+import { simpleDynamodbClient } from 'simple-dynamodb-client';
+
+const transaction = simpleDynamodbClient.startTransaction();
+transaction.queue.put(...) // note: Parameters<typeof transaction.queue.put> === Parameters<typeof simpleDynamodbClient.put>
+transaction.queue.delete(...) // note: Parameters<typeof transaction.queue.delete> === Parameters<typeof simpleDynamodbClient.delete>
+await transaction.execute({ logDebug: log.debug });
+```
+
 # Tips
 
 ## terraform

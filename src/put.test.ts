@@ -38,6 +38,7 @@ describe('put', () => {
       TableName: 'spaceship',
       Item: spaceship,
       ConditionExpression: undefined,
+      ExpressionAttributeValues: undefined,
     });
   });
 });

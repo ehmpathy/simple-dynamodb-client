@@ -67,6 +67,7 @@ describe('beginWriteTransaction', () => {
             TableName: 'spaceships',
             Item: { id: 821, fuel: 9000 },
             ConditionExpression: undefined,
+            ExpressionAttributeValues: undefined,
           },
         },
         {
@@ -74,6 +75,7 @@ describe('beginWriteTransaction', () => {
             TableName: 'spaceport',
             Item: { spaceships: [{ id: 821 }] },
             ConditionExpression: undefined,
+            ExpressionAttributeValues: undefined,
           },
         },
         {
@@ -84,6 +86,7 @@ describe('beginWriteTransaction', () => {
               s: 821,
             },
             ConditionExpression: undefined,
+            ExpressionAttributeValues: undefined,
           },
         },
         {
@@ -95,6 +98,7 @@ describe('beginWriteTransaction', () => {
               quantity: 7,
             },
             ConditionExpression: undefined,
+            ExpressionAttributeValues: undefined,
           },
         },
       ],
