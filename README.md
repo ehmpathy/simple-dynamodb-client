@@ -86,7 +86,7 @@ we recommend provisioning your dynamodb tables with terraform. example:
 
 ```hcl
 resource "aws_dynamodb_table" "table_user" {
-  name = "${local.service}-table-user-${var.environment}"
+  name = "${local.service}-${var.environment}-table-user"
 
   billing_mode = "PAY_PER_REQUEST"
 

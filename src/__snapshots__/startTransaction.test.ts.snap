@@ -1,27 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`beginWriteTransaction should throw a helpful error if the transaction failed 1`] = `
-"An error was found attempting to execute a dynamodb transaction: Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]
+"Error found executing dynamodb write transaction.
 
-Here is the transaction that had the error:
-[
-  {
-    \\"Put\\": {
-      \\"TableName\\": \\"spaceships\\",
-      \\"Item\\": {
-        \\"id\\": 821,
-        \\"fuel\\": 9000
+Found Error:
+Error: Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]
+
+Input:
+{
+  \\"writeItems\\": [
+    {
+      \\"Put\\": {
+        \\"TableName\\": \\"spaceships\\",
+        \\"Item\\": {
+          \\"id\\": 821,
+          \\"fuel\\": 9000
+        }
+      }
+    },
+    {
+      \\"Delete\\": {
+        \\"TableName\\": \\"cargo-to-spaceship\\",
+        \\"Key\\": {
+          \\"p\\": \\"SOIL\\",
+          \\"s\\": 821
+        }
       }
     }
-  },
-  {
-    \\"Delete\\": {
-      \\"TableName\\": \\"cargo-to-spaceship\\",
-      \\"Key\\": {
-        \\"p\\": \\"SOIL\\",
-        \\"s\\": 821
-      }
-    }
-  }
-]"
+  ]
+}"
 `;

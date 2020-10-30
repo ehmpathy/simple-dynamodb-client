@@ -1,25 +1,22 @@
-import { DynamoDB } from 'aws-sdk';
-
 import { del } from './delete';
+import { deleteItem } from './dynamodb/delete';
+import { putItem } from './dynamodb/put';
+import { transactWrite } from './dynamodb/transactWrite';
+import { HelpfulDynamodbError } from './HelpfulDynamodbError';
 import { put } from './put';
 import { startTransaction } from './startTransaction';
 
 const logDebug = () => jest.fn();
 
-jest.mock('aws-sdk', () => {
-  const transactWritePromiseMock = jest.fn();
-  const transactWriteMock = jest.fn().mockImplementation(() => ({ promise: transactWritePromiseMock }));
-  return {
-    DynamoDB: {
-      DocumentClient: jest.fn(() => ({
-        transactWrite: transactWriteMock,
-      })),
-    },
-  };
-});
-
-const transactWriteMock = new DynamoDB.DocumentClient().transactWrite as jest.Mock;
-const transactWritePromiseMock = new DynamoDB.DocumentClient().transactWrite({} as any).promise as jest.Mock;
+jest.mock('./dynamodb/put');
+const putItemMock = putItem as jest.Mock;
+putItemMock.mockReturnValue({ ConsumedCapacity: '__CONSUMED_CAPACITY__' });
+jest.mock('./dynamodb/delete');
+const deleteItemMock = deleteItem as jest.Mock;
+deleteItemMock.mockReturnValue({ ConsumedCapacity: '__CONSUMED_CAPACITY__' });
+jest.mock('./dynamodb/transactWrite');
+const transactWriteMock = transactWrite as jest.Mock;
+transactWriteMock.mockReturnValue({ ConsumedCapacity: '__CONSUMED_CAPACITY__' });
 
 describe('beginWriteTransaction', () => {
   it('should be possible to queue a put', async () => {
@@ -30,7 +27,7 @@ describe('beginWriteTransaction', () => {
     const input = { tableName: 'spaceships', item: { fuel: 9000 }, logDebug };
 
     // input works for normal request
-    put(input);
+    await put(input);
 
     // input works for transaction too
     const transaction = startTransaction();
@@ -45,7 +42,7 @@ describe('beginWriteTransaction', () => {
     const input = { tableName: 'spaceships', key: { p: 'uuid' }, logDebug };
 
     // input works for normal request
-    del(input);
+    await del(input);
 
     // input works for transaction too
     const transaction = startTransaction();
@@ -59,53 +56,55 @@ describe('beginWriteTransaction', () => {
     transaction.queue.delete({ tableName: 'cargo-to-spaceship', key: { p: 'SOIL', s: 821 }, logDebug });
     transaction.queue.put({ tableName: 'cargo-to-spaceship', item: { p: 'SOIL', s: 721, quantity: 7 }, logDebug });
     await transaction.execute({ logDebug });
-    expect(transactWritePromiseMock).toHaveBeenCalledTimes(1);
+    expect(transactWriteMock).toHaveBeenCalledTimes(1);
     expect(transactWriteMock).toHaveBeenCalledWith({
-      TransactItems: [
-        {
-          Put: {
-            TableName: 'spaceships',
-            Item: { id: 821, fuel: 9000 },
-            ConditionExpression: undefined,
-            ExpressionAttributeValues: undefined,
-          },
-        },
-        {
-          Put: {
-            TableName: 'spaceport',
-            Item: { spaceships: [{ id: 821 }] },
-            ConditionExpression: undefined,
-            ExpressionAttributeValues: undefined,
-          },
-        },
-        {
-          Delete: {
-            TableName: 'cargo-to-spaceship',
-            Key: {
-              p: 'SOIL',
-              s: 821,
+      input: {
+        TransactItems: [
+          {
+            Put: {
+              TableName: 'spaceships',
+              Item: { id: 821, fuel: 9000 },
+              ConditionExpression: undefined,
+              ExpressionAttributeValues: undefined,
             },
-            ConditionExpression: undefined,
-            ExpressionAttributeValues: undefined,
           },
-        },
-        {
-          Put: {
-            TableName: 'cargo-to-spaceship',
-            Item: {
-              p: 'SOIL',
-              s: 721,
-              quantity: 7,
+          {
+            Put: {
+              TableName: 'spaceport',
+              Item: { spaceships: [{ id: 821 }] },
+              ConditionExpression: undefined,
+              ExpressionAttributeValues: undefined,
             },
-            ConditionExpression: undefined,
-            ExpressionAttributeValues: undefined,
           },
-        },
-      ],
+          {
+            Delete: {
+              TableName: 'cargo-to-spaceship',
+              Key: {
+                p: 'SOIL',
+                s: 821,
+              },
+              ConditionExpression: undefined,
+              ExpressionAttributeValues: undefined,
+            },
+          },
+          {
+            Put: {
+              TableName: 'cargo-to-spaceship',
+              Item: {
+                p: 'SOIL',
+                s: 721,
+                quantity: 7,
+              },
+              ConditionExpression: undefined,
+              ExpressionAttributeValues: undefined,
+            },
+          },
+        ],
+      },
     });
   });
   it('should throw a helpful error if the transaction failed', async () => {
-    transactWritePromiseMock.mockRejectedValueOnce(
+    transactWriteMock.mockRejectedValueOnce(
       new Error('Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]'), // typical example message
     );
     const transaction = startTransaction();
@@ -115,8 +114,10 @@ describe('beginWriteTransaction', () => {
       await transaction.execute({ logDebug });
       throw new Error('should not reach here');
     } catch (error) {
-      expect(error.message).toContain('An error was found attempting to execute a dynamodb transaction');
-      expect(error.message).toContain('Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]');
+      expect(error).toBeInstanceOf(HelpfulDynamodbError);
+      expect(error.message).toContain(
+        'Error: Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]',
+      );
       expect(error.message).toContain('"Put": {');
       expect(error.message).toContain('"Delete": {');
       expect(error.message).toMatchSnapshot(); // save an example for docs

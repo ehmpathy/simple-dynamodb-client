@@ -21,5 +21,5 @@ export interface RelevantPutInput {
 
 export const putItem = async ({ input }: { input: RelevantPutInput }) => {
   const dynamodbClient = new DynamoDB.DocumentClient();
-  await dynamodbClient.put(input).promise();
+  return dynamodbClient.put(input).promise();
 };

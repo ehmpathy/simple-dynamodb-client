@@ -1,22 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
-
 import { put } from './put';
+import { putItem } from './dynamodb/put';
+import { HelpfulDynamodbError } from './HelpfulDynamodbError';
 
-jest.mock('aws-sdk', () => {
-  const putMock = jest.fn().mockImplementation(() => ({ promise: () => {} }));
-  const queryPromiseMock = jest.fn();
-  const queryMock = jest.fn().mockImplementation(() => ({ promise: queryPromiseMock }));
-  return {
-    DynamoDB: {
-      DocumentClient: jest.fn(() => ({
-        put: putMock,
-        query: queryMock,
-      })),
-    },
-  };
-});
-
-const putMock = new DynamoDB.DocumentClient().put as jest.Mock;
+jest.mock('./dynamodb/put');
+const putItemMock = putItem as jest.Mock;
+putItemMock.mockReturnValue({ ConsumedCapacity: '__CONSUMED_CAPACITY__' });
 
 describe('put', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -34,11 +22,27 @@ describe('put', () => {
     });
 
     // check we called aws sdk correctly
-    expect(putMock).toHaveBeenCalledWith({
-      TableName: 'spaceship',
-      Item: spaceship,
-      ConditionExpression: undefined,
-      ExpressionAttributeValues: undefined,
+    expect(putItemMock).toHaveBeenCalledWith({
+      input: {
+        TableName: 'spaceship',
+        Item: spaceship,
+        ConditionExpression: undefined,
+        ExpressionAttributeValues: undefined,
+      },
     });
+  });
+  it('should throw a helpful error when an error occurs', async () => {
+    putItemMock.mockRejectedValueOnce(new Error('The conditional request failed'));
+    try {
+      await put({
+        tableName: 'spaceship',
+        logDebug: jest.fn(),
+        item: { a: true },
+      });
+      throw new Error('should not reach here');
+    } catch (error) {
+      expect(error).toBeInstanceOf(HelpfulDynamodbError);
+      expect(error.message).toContain('Error: The conditional request failed');
+    }
   });
 });

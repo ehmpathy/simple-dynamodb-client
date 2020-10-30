@@ -51,7 +51,34 @@ export interface RelevantTransactWriteInput {
   ReturnConsumedCapacity?: DynamoDB.DocumentClient.ReturnConsumedCapacity;
 }
 
-export const transactWrite = async ({ input }: { input: RelevantTransactWriteInput }) => {
+export const transactWrite = async ({ input }: { input: RelevantTransactWriteInput }): Promise<DynamoDB.DocumentClient.TransactWriteItemsOutput> => {
   const dynamodbClient = new DynamoDB.DocumentClient();
-  await dynamodbClient.transactWrite(input).promise();
+
+  // define the request the request
+  const transactionRequest = dynamodbClient.transactWrite(input);
+
+  // add a event listener, to expose access to the "cancellation reasons", since the sdk does not expose them yet: https://github.com/aws/aws-sdk-js/issues/2464#issuecomment-503524701
+  let cancellationReasons: any[];
+  transactionRequest.on('extractError', (response) => {
+    try {
+      cancellationReasons = JSON.parse(response.httpResponse.body.toString()).CancellationReasons;
+    } catch (err) {
+      // suppress this just in case some types of errors aren't JSON parsable
+    }
+  });
+
+  // now send the request - and if an error is caught, append the cancellation reasons to it (if any)
+  return new Promise((resolve, reject) => {
+    transactionRequest.send((err, response) => {
+      if (err) {
+        const errorMessage = cancellationReasons
+          ? [err.message, '', 'Cancellation reasons:', JSON.stringify(cancellationReasons, null, 2)].join('\n')
+          : err.message;
+        const error = new Error(errorMessage);
+        error.name = 'TransactionCanceledException'; // set the name to match the error name aws uses
+        return reject(error);
+      }
+      return resolve(response);
+    });
+  });
 };

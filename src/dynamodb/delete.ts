@@ -21,5 +21,5 @@ export interface RelevantDeleteInput {
 
 export const deleteItem = async ({ input }: { input: RelevantDeleteInput }) => {
   const dynamodbClient = new DynamoDB.DocumentClient();
-  await dynamodbClient.delete(input).promise();
+  return dynamodbClient.delete(input).promise();
 };

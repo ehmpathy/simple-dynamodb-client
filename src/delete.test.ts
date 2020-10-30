@@ -1,24 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
-
 import { del } from './delete';
+import { deleteItem } from './dynamodb/delete';
+import { HelpfulDynamodbError } from './HelpfulDynamodbError';
 
-jest.mock('aws-sdk', () => {
-  const putMock = jest.fn().mockImplementation(() => ({ promise: () => {} }));
-  const deleteMock = jest.fn().mockImplementation(() => ({ promise: () => {} }));
-  const queryPromiseMock = jest.fn();
-  const queryMock = jest.fn().mockImplementation(() => ({ promise: queryPromiseMock }));
-  return {
-    DynamoDB: {
-      DocumentClient: jest.fn(() => ({
-        put: putMock,
-        query: queryMock,
-        delete: deleteMock,
-      })),
-    },
-  };
-});
-
-const deleteMock = new DynamoDB.DocumentClient().delete as jest.Mock;
+jest.mock('./dynamodb/delete');
+const deleteItemMock = deleteItem as jest.Mock;
+deleteItemMock.mockReturnValue({ ConsumedCapacity: '__CONSUMED_CAPACITY__' });
 
 describe('delete', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -36,11 +22,27 @@ describe('delete', () => {
     });
 
     // check we called aws sdk correctly
-    expect(deleteMock).toHaveBeenCalledWith({
-      TableName: 'spaceship',
-      Key: { p: spaceship.registrationNumber },
-      ConditionExpression: undefined,
-      ExpressionAttributeValues: undefined,
+    expect(deleteItemMock).toHaveBeenCalledWith({
+      input: {
+        TableName: 'spaceship',
+        Key: { p: spaceship.registrationNumber },
+        ConditionExpression: undefined,
+        ExpressionAttributeValues: undefined,
+      },
     });
+  });
+  it('should throw a helpful error when an error occurs', async () => {
+    deleteItemMock.mockRejectedValueOnce(new Error('The conditional request failed'));
+    try {
+      await del({
+        tableName: 'spaceship',
+        logDebug: jest.fn(),
+        key: { p: 'number' },
+      });
+      throw new Error('should not reach here');
+    } catch (error) {
+      expect(error).toBeInstanceOf(HelpfulDynamodbError);
+      expect(error.message).toContain('Error: The conditional request failed');
+    }
   });
 });

@@ -2,6 +2,7 @@ import { DynamoDB } from 'aws-sdk';
 
 import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
+import { HelpfulDynamodbError, SimpleDynamodbOperation } from './HelpfulDynamodbError';
 
 export interface SimpleDynamodbDeleteConditions {
   ConditionExpression?: DynamoDB.DocumentClient.DeleteItemInput['ConditionExpression'];
@@ -20,14 +21,24 @@ export const del = async ({
   key: DynamoDB.DocumentClient.Key;
   deleteConditions?: SimpleDynamodbDeleteConditions;
 }) => {
-  logDebug(`${tableName}.delete.input`, { key, conditions: deleteConditions });
-  await dynamodb.delete({
-    input: {
-      TableName: tableName,
-      Key: key, // primary key of item to delete
-      ConditionExpression: deleteConditions?.ConditionExpression,
-      ExpressionAttributeValues: deleteConditions?.ExpressionAttributeValues,
-    },
-  });
-  logDebug(`${tableName}.delete.output`, { success: true, key, conditions: deleteConditions });
+  try {
+    logDebug(`${tableName}.delete.input`, { key, conditions: deleteConditions });
+    const response = await dynamodb.delete({
+      input: {
+        TableName: tableName,
+        Key: key, // primary key of item to delete
+        ConditionExpression: deleteConditions?.ConditionExpression,
+        ExpressionAttributeValues: deleteConditions?.ExpressionAttributeValues,
+      },
+    });
+    logDebug(`${tableName}.delete.output`, {
+      success: true,
+      tableName,
+      key,
+      conditions: deleteConditions,
+      consumedCapacity: response.ConsumedCapacity,
+    });
+  } catch (error) {
+    throw new HelpfulDynamodbError({ operation: SimpleDynamodbOperation.DELETE, error, input: { tableName, key, deleteConditions } });
+  }
 };
