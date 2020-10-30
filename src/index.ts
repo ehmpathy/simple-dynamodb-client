@@ -7,7 +7,7 @@ export { LogMethod, AttributesToRetrieveInQuery } from './types';
 export { SimpleDynamodbQueryConditions } from './query';
 export { SimpleDynamodbPutConditions } from './put';
 export { SimpleDynamodbDeleteConditions } from './delete';
-export { SimpleDynamodbTransaction } from './startTransaction';
+export { SimpleDynamodbTransaction, HelpfulDynamodbTransactionError } from './startTransaction';
 
 export const simpleDynamodbClient = {
   query,

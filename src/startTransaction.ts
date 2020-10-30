@@ -3,6 +3,18 @@ import { RelevantTransactWriteItemInput, transactWrite } from './dynamodb/transa
 import { put } from './put';
 import { LogMethod } from './types';
 
+export class HelpfulDynamodbTransactionError extends Error {
+  constructor({ errorMessage, writeItems }: { errorMessage: string; writeItems: RelevantTransactWriteItemInput[] }) {
+    const message = `
+An error was found attempting to execute a dynamodb transaction: ${errorMessage}
+
+Here is the transaction that had the error:
+${JSON.stringify(writeItems, null, 2)}
+    `.trim();
+    super(message);
+  }
+}
+
 type PutRequestArgs = Parameters<typeof put>[0];
 type DeleteRequestArgs = Parameters<typeof del>[0];
 
@@ -39,13 +51,17 @@ export const startTransaction = (): SimpleDynamodbTransaction => {
         }),
     },
     execute: async ({ logDebug }: { logDebug: LogMethod }) => {
-      logDebug(`writeTransaction.execute.input`, { writeItems: queuedWriteItems });
-      await transactWrite({
-        input: {
-          TransactItems: queuedWriteItems,
-        },
-      });
-      logDebug(`writeTransaction.execute.output`, { success: true, writeItems: queuedWriteItems });
+      try {
+        logDebug(`writeTransaction.execute.input`, { writeItems: queuedWriteItems });
+        await transactWrite({
+          input: {
+            TransactItems: queuedWriteItems,
+          },
+        });
+        logDebug(`writeTransaction.execute.output`, { success: true, writeItems: queuedWriteItems });
+      } catch (error) {
+        throw new HelpfulDynamodbTransactionError({ errorMessage: error.message, writeItems: queuedWriteItems }); // make error more helpful when thrown
+      }
     },
   };
 };

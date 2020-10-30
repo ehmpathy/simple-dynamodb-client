@@ -104,4 +104,22 @@ describe('beginWriteTransaction', () => {
       ],
     });
   });
+  it('should throw a helpful error if the transaction failed', async () => {
+    transactWritePromiseMock.mockRejectedValueOnce(
+      new Error('Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]'), // typical example message
+    );
+    const transaction = startTransaction();
+    transaction.queue.put({ tableName: 'spaceships', item: { id: 821, fuel: 9000 }, logDebug });
+    transaction.queue.delete({ tableName: 'cargo-to-spaceship', key: { p: 'SOIL', s: 821 }, logDebug });
+    try {
+      await transaction.execute({ logDebug });
+      throw new Error('should not reach here');
+    } catch (error) {
+      expect(error.message).toContain('An error was found attempting to execute a dynamodb transaction');
+      expect(error.message).toContain('Transaction cancelled, please refer cancellation reasons for specific reasons [None, ConditionalCheckFailed]');
+      expect(error.message).toContain('"Put": {');
+      expect(error.message).toContain('"Delete": {');
+      expect(error.message).toMatchSnapshot(); // save an example for docs
+    }
+  });
 });
