@@ -122,4 +122,11 @@ describe('beginWriteTransaction', () => {
       expect(error.message).toMatchSnapshot(); // save an example for docs
     }
   });
+  it('should be possible to get a static, synced timestamp to use for writes in the transaction', async () => {
+    const transaction = startTransaction();
+    transaction.queue.put({ tableName: 'nature-preserve', item: { name: 'the great preserve', effectiveAt: transaction.startTimestamp }, logDebug });
+    transaction.queue.put({ tableName: 'species', item: { kingdom: 'animal', class: 'mammals', family: 'foxes', species: 'silver fox' }, logDebug });
+    transaction.queue.put({ tableName: 'funding', item: { grant: 1000000, remaining: 50000, effectiveAt: transaction.startTimestamp }, logDebug });
+    await transaction.execute({ logDebug });
+  });
 });

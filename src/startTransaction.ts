@@ -19,17 +19,28 @@ type PutRequestArgs = Parameters<typeof put>[0];
 type DeleteRequestArgs = Parameters<typeof del>[0];
 
 export interface SimpleDynamodbTransaction {
+  /**
+   * queue a write item for the transaction
+   */
   queue: {
     put: (args: PutRequestArgs) => void;
     delete: (args: DeleteRequestArgs) => void;
   };
+  /**
+   * executes the queued write items in a transaction
+   */
   execute: ({ logDebug }: { logDebug: LogMethod }) => Promise<void>;
+  /**
+   * a readonly, ISO timestamp for when the transaction was started
+   */
+  startTimestamp: string;
 }
 
 export const startTransaction = (): SimpleDynamodbTransaction => {
   // const queuedReadItems: RelevantTransactReadItemInput[] = []; -> eventually we can support read items too, and just throw an error if someone tries to use same transaction for both read and wrtie
   const queuedWriteItems: RelevantTransactWriteItemInput[] = [];
-  return {
+  const startTimestamp = new Date().toISOString();
+  return Object.freeze({
     queue: {
       put: (args: PutRequestArgs) =>
         queuedWriteItems.push({
@@ -63,5 +74,6 @@ export const startTransaction = (): SimpleDynamodbTransaction => {
         throw new HelpfulDynamodbTransactionError({ errorMessage: error.message, writeItems: queuedWriteItems }); // make error more helpful when thrown
       }
     },
-  };
+    startTimestamp,
+  });
 };
