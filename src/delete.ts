@@ -4,8 +4,8 @@ import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
 
 export interface SimpleDynamodbDeleteConditions {
-  ConditionExpression?: DynamoDB.DeleteItemInput['ConditionExpression'];
-  ExpressionAttributeValues?: DynamoDB.DeleteItemInput['ExpressionAttributeValues'];
+  ConditionExpression?: DynamoDB.DocumentClient.DeleteItemInput['ConditionExpression'];
+  ExpressionAttributeValues?: DynamoDB.DocumentClient.DeleteItemInput['ExpressionAttributeValues'];
 }
 
 // note: we use the name "del" here because "delete" is a reserved keyword

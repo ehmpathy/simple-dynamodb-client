@@ -25,6 +25,7 @@ export const startTransaction = (): SimpleDynamodbTransaction => {
             TableName: args.tableName,
             Item: args.item,
             ConditionExpression: args.putConditions?.ConditionExpression,
+            ExpressionAttributeValues: args.putConditions?.ExpressionAttributeValues,
           },
         }),
       delete: (args: DeleteRequestArgs) =>
@@ -33,6 +34,7 @@ export const startTransaction = (): SimpleDynamodbTransaction => {
             TableName: args.tableName,
             Key: args.key,
             ConditionExpression: args.deleteConditions?.ConditionExpression,
+            ExpressionAttributeValues: args.deleteConditions?.ExpressionAttributeValues,
           },
         }),
     },

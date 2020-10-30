@@ -13,6 +13,10 @@ export interface RelevantTransactWriteDeleteItemInput {
    * A condition that must be satisfied in order for a conditional delete to succeed.
    */
   ConditionExpression?: DynamoDB.DocumentClient.ConditionExpression;
+  /**
+   * One or more values that can be substituted in an expression.
+   */
+  ExpressionAttributeValues?: DynamoDB.DocumentClient.ExpressionAttributeValueMap;
 }
 export interface RelevantTransactWritePutItemInput {
   /**
@@ -27,6 +31,10 @@ export interface RelevantTransactWritePutItemInput {
    * A condition that must be satisfied in order for a conditional update to succeed.
    */
   ConditionExpression?: DynamoDB.DocumentClient.ConditionExpression;
+  /**
+   * One or more values that can be substituted in an expression.
+   */
+  ExpressionAttributeValues?: DynamoDB.DocumentClient.ExpressionAttributeValueMap;
 }
 
 export type RelevantTransactWriteItemInput = { Put: RelevantTransactWritePutItemInput } | { Delete: RelevantTransactWriteDeleteItemInput };

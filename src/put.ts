@@ -4,8 +4,8 @@ import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
 
 export interface SimpleDynamodbPutConditions {
-  ConditionExpression?: DynamoDB.PutItemInput['ConditionExpression'];
-  ExpressionAttributeValues?: DynamoDB.PutItemInput['ExpressionAttributeValues'];
+  ConditionExpression?: DynamoDB.DocumentClient.PutItemInput['ConditionExpression'];
+  ExpressionAttributeValues?: DynamoDB.DocumentClient.PutItemInput['ExpressionAttributeValues'];
 }
 
 export const put = async ({
