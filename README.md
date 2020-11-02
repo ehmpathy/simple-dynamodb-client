@@ -49,7 +49,7 @@ import { simpleDynamodbClient } from 'simple-dynamodb-client';
 // ... your other imports ...
 
 export const findByUuid = async ({ uuid }: { uuid: string }) => {
-  const config = await promiseConfig();
+  const config = await getConfig();
   const items = await simpleDynamodbClient.query({
     tableName: config.dynamodb.userTable,
     logDebug: log.debug,
@@ -57,13 +57,13 @@ export const findByUuid = async ({ uuid }: { uuid: string }) => {
     queryConditions: {
       KeyConditionExpression: 'p = :p',
       ExpressionAttributeValues: {
-        ':p': uuid, // ui.e., uid is the partition key, in this example
+        ':p': getPartitionKey({ uuid }), // i.e., partition key is made from uuid, in this example
       },
     },
   });
   if (!items.length) return null;
   if (items.length > 1) throw new Error('more than one user found by uuid');
-  return castFromDynamodbItemToModel({ item: items[0] });
+  return castFromDynamodbToDomain({ item: items[0] });
 };
 ```
 
@@ -108,7 +108,7 @@ we recommend defining explicit casting functions (as you will have seen in the e
 a `getPartitionKey` is a useful function because it explicitly declares how to get the partition key in one place:
 
 ```ts
-export const getPartitionKey = ({ user }: { user: User }) => user.uuid`;
+export const getPartitionKey = ({ user }: { user: User }) => user.uuid;
 ```
 
 a `castFromModelToDynamodbItem` function allows you to declare in one place how to cast from the way your code talks about this data into the way that dynamo will represent the data:
@@ -118,7 +118,7 @@ import { getPartitionKey } from './getPartitionKey';
 
 export const castFromModelToDynamodbItem = ({ user }: { user: User }) => {
   return {
-    p: getPartitionKey({ user }), // the partition key, upon which we will overwrite data
+    p: getPartitionKey(user}), // the partition key, upon which we will overwrite data
     recorded_at: new Date().toISOString(), // for debugging the last time cache for this was updated
     user, // i.e., just store the whole object in one column, for simplicity
     user_name: user.name, // but also store the users name in a separate column for easier visual debugging
