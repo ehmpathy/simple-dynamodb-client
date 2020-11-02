@@ -55,7 +55,13 @@ export const transactWrite = async ({ input }: { input: RelevantTransactWriteInp
   const dynamodbClient = new DynamoDB.DocumentClient();
 
   // define the request the request
-  const transactionRequest = dynamodbClient.transactWrite(input);
+  const transactionRequest = dynamodbClient.transactWrite({
+    // return consumed capacity by default
+    ReturnConsumedCapacity: 'TOTAL',
+
+    // where, limit, etc
+    ...input,
+  });
 
   // add a event listener, to expose access to the "cancellation reasons", since the sdk does not expose them yet: https://github.com/aws/aws-sdk-js/issues/2464#issuecomment-503524701
   let cancellationReasons: any[];

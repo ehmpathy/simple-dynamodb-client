@@ -21,5 +21,13 @@ export interface RelevantPutInput {
 
 export const putItem = async ({ input }: { input: RelevantPutInput }) => {
   const dynamodbClient = new DynamoDB.DocumentClient();
-  return dynamodbClient.put(input).promise();
+  return dynamodbClient
+    .put({
+      // return consumed capacity by default
+      ReturnConsumedCapacity: 'TOTAL',
+
+      // where, limit, etc
+      ...input,
+    })
+    .promise();
 };
