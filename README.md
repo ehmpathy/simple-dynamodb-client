@@ -44,6 +44,8 @@ export const record = async ({ user }: { user: User }) => {
 
 ### read
 
+#### get
+
 ```ts
 import { simpleDynamodbClient } from 'simple-dynamodb-client';
 
@@ -51,15 +53,66 @@ import { simpleDynamodbClient } from 'simple-dynamodb-client';
 
 export const findByUuid = async ({ uuid }: { uuid: string }) => {
   const config = await getConfig();
+  const item = await simpleDynamodbClient.get({
+    tableName: config.dynamodb.userTable,
+    logDebug: log.debug,
+    attributesToRetrieveInQuery: ['o'], // i.e., we only care about the "o" key, in this example
+    key: {
+      p: getPartitionKey({ uuid }), // i.e., partition key is made from uuid, in this example
+    }
+  });
+  if (!item) return null;
+  return castFromDynamodbToDomain({ item });
+};
+```
+
+#### query
+
+secondary index example
+
+```ts
+import { simpleDynamodbClient } from 'simple-dynamodb-client';
+
+// ... your other imports ...
+
+export const findAllForUser = async ({ userUuid, effectiveAt }: { userUuid: string, effectiveAt: string }) => {
+  const config = await getConfig();
+  const items = await simpleDynamodbClient.query({
+    tableName: config.dynamodb.userFavoritesTable,
+    logDebug: log.debug,
+    attributesToRetrieveInQuery: ['o'], // i.e., we only care about the "o" key, in this example
+    queryConditions: {
+      KeyConditionExpression: 'q = :q',
+      ExpressionAttributeValues: {
+        ':q': userUuid, // i.e., secondary index key is made from userUuid and called 'q', in this example
+      },
+    },
+  });
+  return items.map(item => castFromDynamodbToDomain({ item }))
+};
+```
+
+temporal database design pattern, finding state of an object at a time in the past:
+
+```ts
+import { simpleDynamodbClient } from 'simple-dynamodb-client';
+
+// ... your other imports ...
+
+export const findByUuid = async ({ uuid, effectiveAt }: { uuid: string, effectiveAt: string }) => {
+  const config = await getConfig();
   const items = await simpleDynamodbClient.query({
     tableName: config.dynamodb.userTable,
     logDebug: log.debug,
-    attributesToRetrieveInQuery: ['user'], // i.e., we only care about the "user" key, in this example
+    attributesToRetrieveInQuery: ['o'], // i.e., we only care about the "o" key, in this example
     queryConditions: {
-      KeyConditionExpression: 'p = :p',
+      KeyConditionExpression: 'p = :p and s <= :s',
       ExpressionAttributeValues: {
         ':p': getPartitionKey({ uuid }), // i.e., partition key is made from uuid, in this example
+        ':s': effectiveAt, // i.e., in this case the sort key is the timestamp of the time the version became "effective" (temporal database design pattern)
       },
+      ScanIndexForward: false,
+      Limit: 1,
     },
   });
   if (!items.length) return null;
@@ -67,6 +120,8 @@ export const findByUuid = async ({ uuid }: { uuid: string }) => {
   return castFromDynamodbToDomain({ item: items[0] });
 };
 ```
+
+
 
 ### transaction
 
