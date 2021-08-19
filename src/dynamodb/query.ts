@@ -1,4 +1,3 @@
-import { DynamoDB } from 'aws-sdk';
 import {
   ConditionExpression,
   ConsistentRead,
@@ -8,6 +7,8 @@ import {
   ProjectionExpression,
   TableName,
 } from 'aws-sdk/clients/dynamodb';
+
+import { getDocumentClient } from './client';
 
 export interface RelevantQueryInput {
   /**
@@ -56,7 +57,7 @@ export interface RelevantQueryInput {
   ExpressionAttributeValues?: { [index: string]: string | number | boolean | null };
 }
 export const query = async ({ input }: { input: RelevantQueryInput }) => {
-  const dynamodbClient = new DynamoDB.DocumentClient();
+  const dynamodbClient = getDocumentClient();
   return dynamodbClient
     .query({
       // return consumed capacity by default

@@ -14,6 +14,7 @@ Simple:
 Best practices:
 
 - enforces standard input and output logging, which is important for debugging live systems
+- reuses tcp connections across dynamodb queries, which is important for performance and [recommended by aws](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-reusing-connections.html)
 
 # Install
 

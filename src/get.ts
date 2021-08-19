@@ -1,4 +1,4 @@
-import DynamoDB, { ConsistentRead, Converter } from 'aws-sdk/clients/dynamodb';
+import DynamoDB, { ConsistentRead } from 'aws-sdk/clients/dynamodb';
 
 import { dynamodb } from './dynamodb';
 import { AttributesToRetrieveInQuery, LogMethod } from './types';

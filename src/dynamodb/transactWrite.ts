@@ -1,5 +1,7 @@
 import { DynamoDB } from 'aws-sdk';
 
+import { getDocumentClient } from './client';
+
 export interface RelevantTransactWriteDeleteItemInput {
   /**
    * The primary key of the item to be deleted. Each element consists of an attribute name and a value for that attribute.
@@ -52,7 +54,7 @@ export interface RelevantTransactWriteInput {
 }
 
 export const transactWrite = async ({ input }: { input: RelevantTransactWriteInput }): Promise<DynamoDB.DocumentClient.TransactWriteItemsOutput> => {
-  const dynamodbClient = new DynamoDB.DocumentClient();
+  const dynamodbClient = getDocumentClient();
 
   // define the request the request
   const transactionRequest = dynamodbClient.transactWrite({

@@ -1,5 +1,7 @@
 import { DynamoDB } from 'aws-sdk';
 
+import { getDocumentClient } from './client';
+
 export interface RelevantPutInput {
   /**
    * The name of the table to contain the item.
@@ -20,7 +22,7 @@ export interface RelevantPutInput {
 }
 
 export const putItem = async ({ input }: { input: RelevantPutInput }) => {
-  const dynamodbClient = new DynamoDB.DocumentClient();
+  const dynamodbClient = getDocumentClient();
   return dynamodbClient
     .put({
       // return consumed capacity by default

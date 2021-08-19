@@ -1,5 +1,7 @@
 import { DynamoDB } from 'aws-sdk';
 
+import { getDocumentClient } from './client';
+
 export interface RelevantGetInput {
   /**
    * The name of the table containing the requested items.
@@ -23,7 +25,7 @@ export interface RelevantGetInput {
   ExpressionAttributeNames?: DynamoDB.DocumentClient.ExpressionAttributeNameMap;
 }
 export const getItem = async ({ input }: { input: RelevantGetInput }) => {
-  const dynamodbClient = new DynamoDB.DocumentClient();
+  const dynamodbClient = getDocumentClient();
   return dynamodbClient
     .get({
       // return consumed capacity by default

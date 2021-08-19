@@ -1,5 +1,7 @@
 import { DynamoDB } from 'aws-sdk';
 
+import { getDocumentClient } from './client';
+
 export interface RelevantDeleteInput {
   /**
    * The name of the table from which to delete the item.
@@ -20,7 +22,7 @@ export interface RelevantDeleteInput {
 }
 
 export const deleteItem = async ({ input }: { input: RelevantDeleteInput }) => {
-  const dynamodbClient = new DynamoDB.DocumentClient();
+  const dynamodbClient = getDocumentClient();
   return dynamodbClient
     .delete({
       // return consumed capacity by default
