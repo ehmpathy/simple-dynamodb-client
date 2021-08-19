@@ -22,7 +22,7 @@ export const del = async ({
   deleteConditions?: SimpleDynamodbDeleteConditions;
 }) => {
   try {
-    logDebug(`${tableName}.delete.input`, { key, conditions: deleteConditions });
+    logDebug(`${tableName}.delete.input`, { tableName, key, conditions: deleteConditions });
     const response = await dynamodb.delete({
       input: {
         TableName: tableName,
@@ -36,7 +36,9 @@ export const del = async ({
       tableName,
       key,
       conditions: deleteConditions,
-      consumedCapacity: response.ConsumedCapacity,
+      stats: {
+        consumedCapacity: response.ConsumedCapacity,
+      },
     });
   } catch (error) {
     throw new HelpfulDynamodbError({ operation: SimpleDynamodbOperation.DELETE, error, input: { tableName, key, deleteConditions } });

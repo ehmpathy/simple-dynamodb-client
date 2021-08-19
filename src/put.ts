@@ -21,7 +21,7 @@ export const put = async ({
   putConditions?: SimpleDynamodbPutConditions;
 }) => {
   try {
-    logDebug(`${tableName}.put.input`, { item, conditions: putConditions });
+    logDebug(`${tableName}.put.input`, { tableName, item, conditions: putConditions });
     const response = await dynamodb.put({
       input: {
         TableName: tableName,
@@ -30,7 +30,15 @@ export const put = async ({
         ExpressionAttributeValues: putConditions?.ExpressionAttributeValues,
       },
     });
-    logDebug(`${tableName}.put.output`, { success: true, tableName, item, conditions: putConditions, consumedCapacity: response.ConsumedCapacity });
+    logDebug(`${tableName}.put.output`, {
+      success: true,
+      tableName,
+      item,
+      conditions: putConditions,
+      stats: {
+        consumedCapacity: response.ConsumedCapacity,
+      },
+    });
   } catch (error) {
     throw new HelpfulDynamodbError({ operation: SimpleDynamodbOperation.PUT, error, input: { tableName, item, putConditions } }); // make error more helpful when thrown
   }

@@ -58,7 +58,7 @@ export const query = async ({
   );
 
   // 1. execute the query, log params and output
-  logDebug(`${tableName}.query.input`, { queryConditions });
+  logDebug(`${tableName}.query.input`, { tableName, conditions: queryConditions });
   const result = await dynamodb.query({
     input: {
       TableName: tableName,
@@ -68,7 +68,9 @@ export const query = async ({
     },
   });
   logDebug(`${tableName}.query.output`, {
-    queryConditions,
+    success: true,
+    tableName,
+    conditions: queryConditions,
     stats: {
       itemCount: result.Count,
       scannedCount: result.ScannedCount, // this will always be equal to item count, as we don't allow filtering as an input
