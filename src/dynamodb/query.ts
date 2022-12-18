@@ -10,6 +10,19 @@ import {
 
 import { getDocumentClient } from './client';
 
+export class DynamodbQueryError extends Error {
+  constructor({ input, errorMessage }: { input: RelevantQueryInput; errorMessage: string }) {
+    super(
+      `
+Encountered error when trying to execute a dynamodb query against table '${input.TableName}': ${errorMessage}
+
+Input:
+${JSON.stringify(input, null, 2)}
+    `.trim(),
+    );
+  }
+}
+
 export interface RelevantQueryInput {
   /**
    * The name of the table containing the requested items.
@@ -66,5 +79,8 @@ export const query = async ({ input }: { input: RelevantQueryInput }) => {
       // where, limit, etc
       ...input,
     })
-    .promise();
+    .promise()
+    .catch((error) => {
+      throw new DynamodbQueryError({ input, errorMessage: error.message }); // convert dynamodb error into a more helpful error by adding relevant context
+    });
 };
