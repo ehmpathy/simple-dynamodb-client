@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.0](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.9.1...v0.10.0) (2022-12-18)
+
+
+### Features
+
+* **observability:** wrap dynamodb query errors with context for easier debugging ([b720b8d](https://www.github.com/ehmpathy/simple-dynamodb-client/commit/b720b8d198823c5b6537d76275b5ba94e6de65ec))
+
+
+### Bug Fixes
+
+* **refs:** replace uladkasach repo refs to ehmpathy repo refs ([967f505](https://www.github.com/ehmpathy/simple-dynamodb-client/commit/967f50589f8b2c432c445df73608da91bb81174e))
+
 ### [0.9.1](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.9.0...v0.9.1) (2022-12-18)
 
 
