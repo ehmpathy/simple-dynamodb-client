@@ -1,7 +1,7 @@
 # simple-dynamodb-client
 
-![ci_on_commit](https://github.com/uladkasach/simple-dynamodb-client/workflows/ci_on_commit/badge.svg)
-![deploy_on_tag](https://github.com/uladkasach/simple-dynamodb-client/workflows/deploy_on_tag/badge.svg)
+![ci_on_commit](https://github.com/ehmpathy/simple-dynamodb-client/workflows/ci_on_commit/badge.svg)
+![deploy_on_tag](https://github.com/ehmpathy/simple-dynamodb-client/workflows/deploy_on_tag/badge.svg)
 
 A simple, convenient interface for interacting with dynamodb with best practices.
 

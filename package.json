@@ -4,8 +4,8 @@
   "description": "A simple, convenient interface for interacting with dynamodb with best practices.",
   "author": "UladKasach @uladkasach",
   "license": "MIT",
-  "repository": "uladkasach/simple-dynamodb-client",
-  "homepage": "https://github.com/uladkasach/simple-dynamodb-client",
+  "repository": "ehmpathy/simple-dynamodb-client",
+  "homepage": "https://github.com/ehmpathy/simple-dynamodb-client",
   "keywords": [
     "aws",
     "dynamodb",
@@ -14,7 +14,7 @@
     "serverless",
     "typescript"
   ],
-  "bugs": "https://github.com/uladkasach/simple-dynamodb-client/issues",
+  "bugs": "https://github.com/ehmpathy/simple-dynamodb-client/issues",
   "main": "dist/index.js",
   "engines": {
     "node": ">=8.0.0"
