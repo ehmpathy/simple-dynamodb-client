@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.9.1](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.9.0...v0.9.1) (2022-12-18)
+
+
+### Bug Fixes
+
+* **local:** dont use https agent when using custom dynamodb endpoint that starts with http:// ([283e0ae](https://www.github.com/ehmpathy/simple-dynamodb-client/commit/283e0ae2e7d9bdec9470fd044697a4ebcf382eaf))
+
 ## [0.9.0](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.8.0...v0.9.0) (2022-12-18)
 
 
