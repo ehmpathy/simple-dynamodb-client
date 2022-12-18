@@ -1,6 +1,9 @@
 import { DynamoDB } from 'aws-sdk';
 import https from 'https';
 
+// support specifying a custom dynamodb endpoint
+const CUSTOM_DYNAMO_DB_ENDPOINT = process.env.USE_CUSTOM_DYNAMODB_ENDPOINT || undefined;
+
 // define an http agent which keeps the connections alive per aws example: https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-reusing-connections.html
 const agent = new https.Agent({
   keepAlive: true,
@@ -23,8 +26,8 @@ let cachedDocumentClient: DynamoDB.DocumentClient | null = null;
 export const getDocumentClient = () => {
   if (cachedDocumentClient) return cachedDocumentClient;
   const documentClient = new DynamoDB.DocumentClient({
-    httpOptions: { agent },
-    endpoint: process.env.USE_CUSTOM_DYNAMODB_ENDPOINT, // enable user specifying a custom endpoint, for example if they want to use dynamodb local
+    httpOptions: CUSTOM_DYNAMO_DB_ENDPOINT && CUSTOM_DYNAMO_DB_ENDPOINT.startsWith('http://') ? undefined : { agent }, // if using a custom endpoint which is http only, dont use the https agent
+    endpoint: CUSTOM_DYNAMO_DB_ENDPOINT, // enable user specifying a custom endpoint, for example if they want to use dynamodb local
   });
   cachedDocumentClient = documentClient;
   return documentClient;
