@@ -22,7 +22,10 @@ let cachedDocumentClient: DynamoDB.DocumentClient | null = null;
  */
 export const getDocumentClient = () => {
   if (cachedDocumentClient) return cachedDocumentClient;
-  const documentClient = new DynamoDB.DocumentClient({ httpOptions: { agent } });
+  const documentClient = new DynamoDB.DocumentClient({
+    httpOptions: { agent },
+    endpoint: process.env.USE_CUSTOM_DYNAMODB_ENDPOINT, // enable user specifying a custom endpoint, for example if they want to use dynamodb local
+  });
   cachedDocumentClient = documentClient;
   return documentClient;
 };

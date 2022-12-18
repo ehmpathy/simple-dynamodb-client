@@ -121,8 +121,6 @@ export const findByUuid = async ({ uuid, effectiveAt }: { uuid: string, effectiv
 };
 ```
 
-
-
 ### transaction
 
 ```ts
@@ -132,6 +130,15 @@ const transaction = simpleDynamodbClient.startTransaction();
 transaction.queue.put(...) // note: Parameters<typeof transaction.queue.put> === Parameters<typeof simpleDynamodbClient.put>
 transaction.queue.delete(...) // note: Parameters<typeof transaction.queue.delete> === Parameters<typeof simpleDynamodbClient.delete>
 await transaction.execute({ logDebug: log.debug });
+```
+
+### custom endpoint
+
+If you want to use a custom dynamodb endpoint, you can do so easily with an environmental variable. This is particularly helpful for [testing against a local dynamodb instance](https://medium.com/platform-engineer/running-aws-dynamodb-local-with-docker-compose-6f75850aba1e).
+
+for example
+```sh
+export USE_CUSTOM_DYNAMODB_ENDPOINT=http://localhost:8000
 ```
 
 # Tips
