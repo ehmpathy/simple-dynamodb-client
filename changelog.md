@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.10.1](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.10.0...v0.10.1) (2024-05-25)
+
+
+### Bug Fixes
+
+* **query:** loop within query to avoid silent aws 1mb pagination footgun ([#10](https://www.github.com/ehmpathy/simple-dynamodb-client/issues/10)) ([d179974](https://www.github.com/ehmpathy/simple-dynamodb-client/commit/d17997436891912559f0f41e98c344c874992770))
+
 ## [0.10.0](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.9.1...v0.10.0) (2022-12-18)
 
 
