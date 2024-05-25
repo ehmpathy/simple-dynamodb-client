@@ -11,10 +11,18 @@ import {
 import { getDocumentClient } from './client';
 
 export class DynamodbQueryError extends Error {
-  constructor({ input, errorMessage }: { input: RelevantQueryInput; errorMessage: string }) {
+  constructor({
+    input,
+    errorMessage,
+  }: {
+    input: RelevantQueryInput;
+    errorMessage: string;
+  }) {
     super(
       `
-Encountered error when trying to execute a dynamodb query against table '${input.TableName}': ${errorMessage}
+Encountered error when trying to execute a dynamodb query against table '${
+        input.TableName
+      }': ${errorMessage}
 
 Input:
 ${JSON.stringify(input, null, 2)}
@@ -67,7 +75,9 @@ export interface RelevantQueryInput {
   /**
    * One or more values that can be substituted in an expression. Use the : (colon) character in an expression to dereference an attribute value. For example, suppose that you wanted to check whether the value of the ProductStatus attribute was one of the following:   Available | Backordered | Discontinued  You would first need to specify ExpressionAttributeValues as follows:  { ":avail": "Available", ":back": "Backordered", ":disc": "Discontinued" }  You could then use these values in an expression, such as this:  ProductStatus IN (:avail, :back, :disc)  For more information on expression attribute values, see Specifying Conditions in the Amazon DynamoDB Developer Guide.
    */
-  ExpressionAttributeValues?: { [index: string]: string | number | boolean | null };
+  ExpressionAttributeValues?: {
+    [index: string]: string | number | boolean | null;
+  };
 }
 export const query = async ({ input }: { input: RelevantQueryInput }) => {
   const dynamodbClient = getDocumentClient();

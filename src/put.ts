@@ -1,7 +1,10 @@
 import { DynamoDB } from 'aws-sdk';
 
+import {
+  HelpfulDynamodbError,
+  SimpleDynamodbOperation,
+} from './HelpfulDynamodbError';
 import { dynamodb } from './dynamodb';
-import { HelpfulDynamodbError, SimpleDynamodbOperation } from './HelpfulDynamodbError';
 import { LogMethod } from './types';
 
 export interface SimpleDynamodbPutConditions {
@@ -21,7 +24,11 @@ export const put = async ({
   putConditions?: SimpleDynamodbPutConditions;
 }) => {
   try {
-    logDebug(`${tableName}.put.input`, { tableName, item, conditions: putConditions });
+    logDebug(`${tableName}.put.input`, {
+      tableName,
+      item,
+      conditions: putConditions,
+    });
     const response = await dynamodb.put({
       input: {
         TableName: tableName,
@@ -40,6 +47,11 @@ export const put = async ({
       },
     });
   } catch (error) {
-    throw new HelpfulDynamodbError({ operation: SimpleDynamodbOperation.PUT, error, input: { tableName, item, putConditions } }); // make error more helpful when thrown
+    if (!(error instanceof Error)) throw error;
+    throw new HelpfulDynamodbError({
+      operation: SimpleDynamodbOperation.PUT,
+      error,
+      input: { tableName, item, putConditions },
+    }); // make error more helpful when thrown
   }
 };

@@ -5,7 +5,15 @@ export enum SimpleDynamodbOperation {
   WRITE_TRANSACTION = 'write transaction',
 }
 export class HelpfulDynamodbError extends Error {
-  constructor({ operation, error, input }: { operation: SimpleDynamodbOperation; error: Error; input: any }) {
+  constructor({
+    operation,
+    error,
+    input,
+  }: {
+    operation: SimpleDynamodbOperation;
+    error: Error;
+    input: any;
+  }) {
     const message = `
 Error found executing dynamodb ${operation}.
 

@@ -1,10 +1,13 @@
 import { DynamoDB } from 'aws-sdk';
+
 import { query } from './query';
 
 jest.mock('aws-sdk', () => {
   const putMock = jest.fn();
   const queryPromiseMock = jest.fn();
-  const queryMock = jest.fn().mockImplementation(() => ({ promise: queryPromiseMock }));
+  const queryMock = jest
+    .fn()
+    .mockImplementation(() => ({ promise: queryPromiseMock }));
   return {
     DynamoDB: {
       DocumentClient: jest.fn(() => ({
@@ -16,7 +19,8 @@ jest.mock('aws-sdk', () => {
 });
 
 const queryMock = new DynamoDB.DocumentClient().query as jest.Mock;
-const queryPromiseMock = new DynamoDB.DocumentClient().query({} as any).promise as jest.Mock;
+const queryPromiseMock = new DynamoDB.DocumentClient().query({} as any)
+  .promise as jest.Mock;
 
 describe('query', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -43,13 +47,20 @@ describe('query', () => {
           ':registrationNumber': '__REGISTRATION_NUMBER__',
         },
       },
-      attributesToRetrieveInQuery: ['u', 'registration_number', 'name', 'max_weight', 'max_passengers'],
+      attributesToRetrieveInQuery: [
+        'u',
+        'registration_number',
+        'name',
+        'max_weight',
+        'max_passengers',
+      ],
     });
 
     // check we called aws sdk correctly
     expect(queryMock).toHaveBeenCalledWith({
       TableName: 'spaceship',
-      ProjectionExpression: '#u,#registration_number,#name,#max_weight,#max_passengers',
+      ProjectionExpression:
+        '#u,#registration_number,#name,#max_weight,#max_passengers',
       ReturnConsumedCapacity: 'TOTAL',
       KeyConditionExpression: 'u = :registrationNumber',
       ExpressionAttributeValues: {
@@ -94,13 +105,20 @@ describe('query', () => {
         },
         Limit: 10,
       },
-      attributesToRetrieveInQuery: ['u', 'registration_number', 'name', 'max_weight', 'max_passengers'],
+      attributesToRetrieveInQuery: [
+        'u',
+        'registration_number',
+        'name',
+        'max_weight',
+        'max_passengers',
+      ],
     });
 
     // check we called aws sdk correctly
     expect(queryMock).toHaveBeenCalledWith({
       TableName: 'spaceship',
-      ProjectionExpression: '#u,#registration_number,#name,#max_weight,#max_passengers',
+      ProjectionExpression:
+        '#u,#registration_number,#name,#max_weight,#max_passengers',
       ReturnConsumedCapacity: 'TOTAL',
       IndexName: 'max_weight_gsi',
       KeyConditionExpression: 'max_weight > :max_weight',

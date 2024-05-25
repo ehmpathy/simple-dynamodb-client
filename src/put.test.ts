@@ -1,6 +1,6 @@
-import { put } from './put';
-import { putItem } from './dynamodb/put';
 import { HelpfulDynamodbError } from './HelpfulDynamodbError';
+import { putItem } from './dynamodb/put';
+import { put } from './put';
 
 jest.mock('./dynamodb/put');
 const putItemMock = putItem as jest.Mock;
@@ -32,7 +32,9 @@ describe('put', () => {
     });
   });
   it('should throw a helpful error when an error occurs', async () => {
-    putItemMock.mockRejectedValueOnce(new Error('The conditional request failed'));
+    putItemMock.mockRejectedValueOnce(
+      new Error('The conditional request failed'),
+    );
     try {
       await put({
         tableName: 'spaceship',
@@ -41,6 +43,7 @@ describe('put', () => {
       });
       throw new Error('should not reach here');
     } catch (error) {
+      if (!(error instanceof Error)) throw error;
       expect(error).toBeInstanceOf(HelpfulDynamodbError);
       expect(error.message).toContain('Error: The conditional request failed');
     }

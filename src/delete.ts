@@ -1,8 +1,11 @@
 import { DynamoDB } from 'aws-sdk';
 
+import {
+  HelpfulDynamodbError,
+  SimpleDynamodbOperation,
+} from './HelpfulDynamodbError';
 import { dynamodb } from './dynamodb';
 import { LogMethod } from './types';
-import { HelpfulDynamodbError, SimpleDynamodbOperation } from './HelpfulDynamodbError';
 
 export interface SimpleDynamodbDeleteConditions {
   ConditionExpression?: DynamoDB.DocumentClient.DeleteItemInput['ConditionExpression'];
@@ -22,7 +25,11 @@ export const del = async ({
   deleteConditions?: SimpleDynamodbDeleteConditions;
 }) => {
   try {
-    logDebug(`${tableName}.delete.input`, { tableName, key, conditions: deleteConditions });
+    logDebug(`${tableName}.delete.input`, {
+      tableName,
+      key,
+      conditions: deleteConditions,
+    });
     const response = await dynamodb.delete({
       input: {
         TableName: tableName,
@@ -41,6 +48,11 @@ export const del = async ({
       },
     });
   } catch (error) {
-    throw new HelpfulDynamodbError({ operation: SimpleDynamodbOperation.DELETE, error, input: { tableName, key, deleteConditions } });
+    if (!(error instanceof Error)) throw error;
+    throw new HelpfulDynamodbError({
+      operation: SimpleDynamodbOperation.DELETE,
+      error,
+      input: { tableName, key, deleteConditions },
+    });
   }
 };

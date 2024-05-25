@@ -1,4 +1,11 @@
-import { ConsistentRead, DocumentClient, IndexName, Key, KeyExpression, PositiveIntegerObject } from 'aws-sdk/clients/dynamodb';
+import {
+  ConsistentRead,
+  DocumentClient,
+  IndexName,
+  Key,
+  KeyExpression,
+  PositiveIntegerObject,
+} from 'aws-sdk/clients/dynamodb';
 
 import { dynamodb } from './dynamodb';
 import { AttributesToRetrieveInQuery, LogMethod } from './types';
@@ -36,7 +43,9 @@ export interface SimpleDynamodbQueryConditions {
   /**
    * One or more values that can be substituted in an expression. Use the : (colon) character in an expression to dereference an attribute value. For example, suppose that you wanted to check whether the value of the ProductStatus attribute was one of the following:   Available | Backordered | Discontinued  You would first need to specify ExpressionAttributeValues as follows:  { ":avail": "Available", ":back": "Backordered", ":disc": "Discontinued" }  You could then use these values in an expression, such as this:  ProductStatus IN (:avail, :back, :disc)  For more information on expression attribute values, see Specifying Conditions in the Amazon DynamoDB Developer Guide.
    */
-  ExpressionAttributeValues?: { [index: string]: string | number | boolean | null };
+  ExpressionAttributeValues?: {
+    [index: string]: string | number | boolean | null;
+  };
 }
 
 export const query = async ({
@@ -51,7 +60,9 @@ export const query = async ({
   queryConditions: SimpleDynamodbQueryConditions;
 }): Promise<Record<string, any>[]> => {
   // 0. prefix all "attributesToRetrieveInQueries" with "#" to ensure no collisions exist and build up name mapping map
-  const prefixedAttributesToRetrieveInQueries = attributesToRetrieveInQuery.map((attr) => `#${attr}`).join(',');
+  const prefixedAttributesToRetrieveInQueries = attributesToRetrieveInQuery
+    .map((attr) => `#${attr}`)
+    .join(',');
   const attributesToPrefixedAttributesMap = attributesToRetrieveInQuery.reduce(
     (map, thisAttr) => ({ ...map, [`#${thisAttr}`]: thisAttr }),
     {} as { [index: string]: string },
@@ -59,7 +70,11 @@ export const query = async ({
 
   // define the stop condition for the loop
   const results: DocumentClient.QueryOutput[] = [];
-  const canStop = ({ lastEvaluatedKey }: { lastEvaluatedKey?: DocumentClient.Key | undefined }) => {
+  const canStop = ({
+    lastEvaluatedKey,
+  }: {
+    lastEvaluatedKey?: DocumentClient.Key | undefined;
+  }) => {
     // determine whether there is more to evaluate
     const hasMoreToEvaluate = !!lastEvaluatedKey; // if there is a last evaluated key, we could continue
 
@@ -77,8 +92,12 @@ export const query = async ({
   };
 
   // begin the loop to collect all items
-  logDebug(`${tableName}.query.input`, { tableName, conditions: queryConditions });
-  let lastEvaluatedKey: DocumentClient.Key | undefined = queryConditions.ExclusiveStartKey; // the last evaluated key should be considered the exclusive start key
+  logDebug(`${tableName}.query.input`, {
+    tableName,
+    conditions: queryConditions,
+  });
+  let lastEvaluatedKey: DocumentClient.Key | undefined =
+    queryConditions.ExclusiveStartKey; // the last evaluated key should be considered the exclusive start key
   while (true) {
     // execute the query
     const result = await dynamodb.query({

@@ -2,7 +2,8 @@ import { DynamoDB } from 'aws-sdk';
 import https from 'https';
 
 // support specifying a custom dynamodb endpoint
-const CUSTOM_DYNAMO_DB_ENDPOINT = process.env.USE_CUSTOM_DYNAMODB_ENDPOINT || undefined;
+const CUSTOM_DYNAMO_DB_ENDPOINT =
+  process.env.USE_CUSTOM_DYNAMODB_ENDPOINT || undefined;
 
 // define an http agent which keeps the connections alive per aws example: https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-reusing-connections.html
 const agent = new https.Agent({
@@ -23,10 +24,14 @@ let cachedDocumentClient: DynamoDB.DocumentClient | null = null;
  *   - > For short-lived operations, such as DynamoDB queries, the latency overhead of setting up a TCP connection might be greater than the operation itself. Additionally, since DynamoDB encryption at rest is integrated with AWS KMS, you may experience latencies from the database having to re-establish new AWS KMS cache entries for each operation.
  *   - we've seen duration drop from 40ms to 5ms just from this change on high volume queries/gets
  */
-export const getDocumentClient = () => {
+export const getDocumentClient = (): DynamoDB.DocumentClient => {
   if (cachedDocumentClient) return cachedDocumentClient;
   const documentClient = new DynamoDB.DocumentClient({
-    httpOptions: CUSTOM_DYNAMO_DB_ENDPOINT && CUSTOM_DYNAMO_DB_ENDPOINT.startsWith('http://') ? undefined : { agent }, // if using a custom endpoint which is http only, dont use the https agent
+    httpOptions:
+      CUSTOM_DYNAMO_DB_ENDPOINT &&
+      CUSTOM_DYNAMO_DB_ENDPOINT.startsWith('http://')
+        ? undefined
+        : { agent }, // if using a custom endpoint which is http only, dont use the https agent
     endpoint: CUSTOM_DYNAMO_DB_ENDPOINT, // enable user specifying a custom endpoint, for example if they want to use dynamodb local
   });
   cachedDocumentClient = documentClient;

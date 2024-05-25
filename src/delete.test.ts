@@ -1,6 +1,6 @@
+import { HelpfulDynamodbError } from './HelpfulDynamodbError';
 import { del } from './delete';
 import { deleteItem } from './dynamodb/delete';
-import { HelpfulDynamodbError } from './HelpfulDynamodbError';
 
 jest.mock('./dynamodb/delete');
 const deleteItemMock = deleteItem as jest.Mock;
@@ -32,7 +32,9 @@ describe('delete', () => {
     });
   });
   it('should throw a helpful error when an error occurs', async () => {
-    deleteItemMock.mockRejectedValueOnce(new Error('The conditional request failed'));
+    deleteItemMock.mockRejectedValueOnce(
+      new Error('The conditional request failed'),
+    );
     try {
       await del({
         tableName: 'spaceship',
@@ -41,6 +43,7 @@ describe('delete', () => {
       });
       throw new Error('should not reach here');
     } catch (error) {
+      if (!(error instanceof Error)) throw error;
       expect(error).toBeInstanceOf(HelpfulDynamodbError);
       expect(error.message).toContain('Error: The conditional request failed');
     }
