@@ -1,4 +1,4 @@
-import { ConsistentRead, IndexName, Key, KeyExpression, PositiveIntegerObject } from 'aws-sdk/clients/dynamodb';
+import { ConsistentRead, DocumentClient, IndexName, Key, KeyExpression, PositiveIntegerObject } from 'aws-sdk/clients/dynamodb';
 
 import { dynamodb } from './dynamodb';
 import { AttributesToRetrieveInQuery, LogMethod } from './types';
@@ -57,29 +57,81 @@ export const query = async ({
     {} as { [index: string]: string },
   );
 
-  // 1. execute the query, log params and output
+  // define the stop condition for the loop
+  const results: DocumentClient.QueryOutput[] = [];
+  const canStop = ({ lastEvaluatedKey }: { lastEvaluatedKey?: DocumentClient.Key | undefined }) => {
+    // determine whether there is more to evaluate
+    const hasMoreToEvaluate = !!lastEvaluatedKey; // if there is a last evaluated key, we could continue
+
+    // when the limit is defined, we can stop if we've reached the limit
+    if (queryConditions.Limit) {
+      const itemsAll = results.map((result) => result.Items ?? []).flat();
+      if (itemsAll.length >= queryConditions.Limit) return { canStopNow: true }; // if we've reached the limit, we can stop here
+    }
+
+    // if there is no more to evaluate, we can stop
+    if (!hasMoreToEvaluate) return { canStopNow: true };
+
+    // otherwise, we must keep going
+    return { canStopNow: false };
+  };
+
+  // begin the loop to collect all items
   logDebug(`${tableName}.query.input`, { tableName, conditions: queryConditions });
-  const result = await dynamodb.query({
-    input: {
-      TableName: tableName,
-      ...queryConditions, // user defined conditions
-      ProjectionExpression: prefixedAttributesToRetrieveInQueries, // plus the prefixed projection expression
-      ExpressionAttributeNames: attributesToPrefixedAttributesMap, // plus the map to ensure no reserved keyword collisions from dynamo
-    },
-  });
+  let lastEvaluatedKey: DocumentClient.Key | undefined = queryConditions.ExclusiveStartKey; // the last evaluated key should be considered the exclusive start key
+  while (true) {
+    // execute the query
+    const result = await dynamodb.query({
+      input: {
+        TableName: tableName,
+        ...queryConditions, // user defined conditions
+        ExclusiveStartKey: lastEvaluatedKey, // the last evaluated key from the previous iteration
+        ProjectionExpression: prefixedAttributesToRetrieveInQueries, // plus the prefixed projection expression
+        ExpressionAttributeNames: attributesToPrefixedAttributesMap, // plus the map to ensure no reserved keyword collisions from dynamo
+      },
+    });
+
+    // update the last evaluated key, append this result, and evaluate whether we can now stop
+    lastEvaluatedKey = result.LastEvaluatedKey;
+    results.push(result);
+    const { canStopNow } = canStop({ lastEvaluatedKey });
+
+    // log the progress
+    logDebug(`${tableName}.query.progress`, {
+      success: true,
+      tableName,
+      conditions: queryConditions,
+      stats: {
+        itemCount: result.Count,
+        scannedCount: result.ScannedCount, // this will always be equal to item count, as we don't allow filtering as an input
+        consumedCapacity: result.ConsumedCapacity,
+        lastEvaluatedKey: result.LastEvaluatedKey,
+      },
+      canStopNow,
+    });
+
+    // break out of the loop if we can stop now
+    if (canStopNow) break;
+  }
+
+  // extract the items from the results
+  const itemsAll = results.map((result) => result.Items ?? []).flat();
+
+  // log that we've completed the queries
   logDebug(`${tableName}.query.output`, {
     success: true,
     tableName,
     conditions: queryConditions,
-    stats: {
+    iterations: results.length,
+    items: itemsAll.length,
+    stats: results.map((result) => ({
       itemCount: result.Count,
       scannedCount: result.ScannedCount, // this will always be equal to item count, as we don't allow filtering as an input
       consumedCapacity: result.ConsumedCapacity,
       lastEvaluatedKey: result.LastEvaluatedKey,
-    },
+    })),
   });
 
-  // 2. cast from database objects into service layer objects
-  const databaseObjects = result.Items ?? [];
-  return databaseObjects;
+  // return the items
+  return itemsAll;
 };
