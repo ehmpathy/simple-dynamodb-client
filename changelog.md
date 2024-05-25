@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.3](https://github.com/ehmpathy/simple-dynamodb-client/compare/v0.10.2...v0.10.3) (2024-05-25)
+
+
+### Bug Fixes
+
+* **deps:** update aws sdk dep ([#14](https://github.com/ehmpathy/simple-dynamodb-client/issues/14)) ([071c4b8](https://github.com/ehmpathy/simple-dynamodb-client/commit/071c4b8d19d3d25599cc289709c45c32e62a779e))
+
 ## [0.10.2](https://github.com/ehmpathy/simple-dynamodb-client/compare/v0.10.1...v0.10.2) (2024-05-25)
 
 
