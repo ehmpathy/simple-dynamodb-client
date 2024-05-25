@@ -1,10 +1,13 @@
 import { DynamoDB } from 'aws-sdk';
+
 import { get } from './get';
 
 jest.mock('aws-sdk', () => {
   const putMock = jest.fn();
   const getPromiseMock = jest.fn();
-  const getMock = jest.fn().mockImplementation(() => ({ promise: getPromiseMock }));
+  const getMock = jest
+    .fn()
+    .mockImplementation(() => ({ promise: getPromiseMock }));
   return {
     DynamoDB: {
       DocumentClient: jest.fn(() => ({
@@ -16,7 +19,8 @@ jest.mock('aws-sdk', () => {
 });
 
 const getMock = new DynamoDB.DocumentClient().get as jest.Mock;
-const getPromiseMock = new DynamoDB.DocumentClient().get({} as any).promise as jest.Mock;
+const getPromiseMock = new DynamoDB.DocumentClient().get({} as any)
+  .promise as jest.Mock;
 
 describe('get', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -38,13 +42,20 @@ describe('get', () => {
       tableName: 'spaceship',
       logDebug: () => {},
       key: { u: '__REG_NUMBER_FOUND__' },
-      attributesToRetrieveInQuery: ['u', 'registration_number', 'name', 'max_weight', 'max_passengers'],
+      attributesToRetrieveInQuery: [
+        'u',
+        'registration_number',
+        'name',
+        'max_weight',
+        'max_passengers',
+      ],
     });
 
     // check we called aws sdk correctly
     expect(getMock).toHaveBeenCalledWith({
       TableName: 'spaceship',
-      ProjectionExpression: '#u,#registration_number,#name,#max_weight,#max_passengers',
+      ProjectionExpression:
+        '#u,#registration_number,#name,#max_weight,#max_passengers',
       ReturnConsumedCapacity: 'TOTAL',
       Key: { u: '__REG_NUMBER_FOUND__' },
       ExpressionAttributeNames: {

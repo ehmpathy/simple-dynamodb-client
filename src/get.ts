@@ -29,14 +29,20 @@ export const get = async ({
   getConditions?: SimpleDynamodbGetConditions;
 }): Promise<Record<string, any> | null> => {
   // 0. prefix all "attributesToRetrieveInQueries" with "#" to ensure no collisions exist and build up name mapping map
-  const prefixedAttributesToRetrieveInQueries = attributesToRetrieveInQuery.map((attr) => `#${attr}`).join(',');
+  const prefixedAttributesToRetrieveInQueries = attributesToRetrieveInQuery
+    .map((attr) => `#${attr}`)
+    .join(',');
   const attributesToPrefixedAttributesMap = attributesToRetrieveInQuery.reduce(
     (map, thisAttr) => ({ ...map, [`#${thisAttr}`]: thisAttr }),
     {} as { [index: string]: string },
   );
 
   // 1. execute the query, log params and output
-  logDebug(`${tableName}.get.input`, { tableName, key, conditions: getConditions });
+  logDebug(`${tableName}.get.input`, {
+    tableName,
+    key,
+    conditions: getConditions,
+  });
   const result = await dynamodb.get({
     input: {
       TableName: tableName,

@@ -8,22 +8,22 @@ Error: Transaction cancelled, please refer cancellation reasons for specific rea
 
 Input:
 {
-  \\"writeItems\\": [
+  "writeItems": [
     {
-      \\"Put\\": {
-        \\"TableName\\": \\"spaceships\\",
-        \\"Item\\": {
-          \\"id\\": 821,
-          \\"fuel\\": 9000
+      "Put": {
+        "TableName": "spaceships",
+        "Item": {
+          "id": 821,
+          "fuel": 9000
         }
       }
     },
     {
-      \\"Delete\\": {
-        \\"TableName\\": \\"cargo-to-spaceship\\",
-        \\"Key\\": {
-          \\"p\\": \\"SOIL\\",
-          \\"s\\": 821
+      "Delete": {
+        "TableName": "cargo-to-spaceship",
+        "Key": {
+          "p": "SOIL",
+          "s": 821
         }
       }
     }

@@ -1,6 +1,12 @@
+import {
+  HelpfulDynamodbError,
+  SimpleDynamodbOperation,
+} from './HelpfulDynamodbError';
 import { del } from './delete';
-import { RelevantTransactWriteItemInput, transactWrite } from './dynamodb/transactWrite';
-import { HelpfulDynamodbError, SimpleDynamodbOperation } from './HelpfulDynamodbError';
+import {
+  RelevantTransactWriteItemInput,
+  transactWrite,
+} from './dynamodb/transactWrite';
 import { put } from './put';
 import { LogMethod } from './types';
 
@@ -37,7 +43,8 @@ export const startTransaction = (): SimpleDynamodbTransaction => {
             TableName: args.tableName,
             Item: args.item,
             ConditionExpression: args.putConditions?.ConditionExpression,
-            ExpressionAttributeValues: args.putConditions?.ExpressionAttributeValues,
+            ExpressionAttributeValues:
+              args.putConditions?.ExpressionAttributeValues,
           },
         }),
       delete: (args: DeleteRequestArgs) =>
@@ -46,21 +53,33 @@ export const startTransaction = (): SimpleDynamodbTransaction => {
             TableName: args.tableName,
             Key: args.key,
             ConditionExpression: args.deleteConditions?.ConditionExpression,
-            ExpressionAttributeValues: args.deleteConditions?.ExpressionAttributeValues,
+            ExpressionAttributeValues:
+              args.deleteConditions?.ExpressionAttributeValues,
           },
         }),
     },
     execute: async ({ logDebug }: { logDebug: LogMethod }) => {
       try {
-        logDebug(`writeTransaction.execute.input`, { writeItems: queuedWriteItems });
+        logDebug(`writeTransaction.execute.input`, {
+          writeItems: queuedWriteItems,
+        });
         const response = await transactWrite({
           input: {
             TransactItems: queuedWriteItems,
           },
         });
-        logDebug(`writeTransaction.execute.output`, { success: true, writeItems: queuedWriteItems, consumedCapacity: response.ConsumedCapacity });
+        logDebug(`writeTransaction.execute.output`, {
+          success: true,
+          writeItems: queuedWriteItems,
+          consumedCapacity: response.ConsumedCapacity,
+        });
       } catch (error) {
-        throw new HelpfulDynamodbError({ operation: SimpleDynamodbOperation.WRITE_TRANSACTION, error, input: { writeItems: queuedWriteItems } }); // make error more helpful when thrown
+        if (!(error instanceof Error)) throw error;
+        throw new HelpfulDynamodbError({
+          operation: SimpleDynamodbOperation.WRITE_TRANSACTION,
+          error,
+          input: { writeItems: queuedWriteItems },
+        }); // make error more helpful when thrown
       }
     },
     startTimestamp,

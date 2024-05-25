@@ -9,7 +9,10 @@ export { SimpleDynamodbQueryConditions } from './query';
 export { SimpleDynamodbPutConditions } from './put';
 export { SimpleDynamodbDeleteConditions } from './delete';
 export { SimpleDynamodbTransaction } from './startTransaction';
-export { SimpleDynamodbOperation, HelpfulDynamodbError } from './HelpfulDynamodbError';
+export {
+  SimpleDynamodbOperation,
+  HelpfulDynamodbError,
+} from './HelpfulDynamodbError';
 
 export const simpleDynamodbClient = {
   get,

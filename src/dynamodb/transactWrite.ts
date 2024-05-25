@@ -39,7 +39,9 @@ export interface RelevantTransactWritePutItemInput {
   ExpressionAttributeValues?: DynamoDB.DocumentClient.ExpressionAttributeValueMap;
 }
 
-export type RelevantTransactWriteItemInput = { Put: RelevantTransactWritePutItemInput } | { Delete: RelevantTransactWriteDeleteItemInput };
+export type RelevantTransactWriteItemInput =
+  | { Put: RelevantTransactWritePutItemInput }
+  | { Delete: RelevantTransactWriteDeleteItemInput };
 
 export interface RelevantTransactWriteInput {
   /**
@@ -53,7 +55,11 @@ export interface RelevantTransactWriteInput {
   ReturnConsumedCapacity?: DynamoDB.DocumentClient.ReturnConsumedCapacity;
 }
 
-export const transactWrite = async ({ input }: { input: RelevantTransactWriteInput }): Promise<DynamoDB.DocumentClient.TransactWriteItemsOutput> => {
+export const transactWrite = async ({
+  input,
+}: {
+  input: RelevantTransactWriteInput;
+}): Promise<DynamoDB.DocumentClient.TransactWriteItemsOutput> => {
   const dynamodbClient = getDocumentClient();
 
   // define the request the request
@@ -69,7 +75,9 @@ export const transactWrite = async ({ input }: { input: RelevantTransactWriteInp
   let cancellationReasons: any[];
   transactionRequest.on('extractError', (response) => {
     try {
-      cancellationReasons = JSON.parse(response.httpResponse.body.toString()).CancellationReasons;
+      cancellationReasons = JSON.parse(
+        response.httpResponse.body.toString(),
+      ).CancellationReasons;
     } catch (err) {
       // suppress this just in case some types of errors aren't JSON parsable
     }
@@ -80,7 +88,12 @@ export const transactWrite = async ({ input }: { input: RelevantTransactWriteInp
     transactionRequest.send((err, response) => {
       if (err) {
         const errorMessage = cancellationReasons
-          ? [err.message, '', 'Cancellation reasons:', JSON.stringify(cancellationReasons, null, 2)].join('\n')
+          ? [
+              err.message,
+              '',
+              'Cancellation reasons:',
+              JSON.stringify(cancellationReasons, null, 2),
+            ].join('\n')
           : err.message;
         const error = new Error(errorMessage);
         error.name = 'TransactionCanceledException'; // set the name to match the error name aws uses

@@ -1,6 +1,6 @@
 import { deleteItem } from './delete';
-import { putItem } from './put';
 import { getItem } from './get';
+import { putItem } from './put';
 import { query } from './query';
 import { transactWrite } from './transactWrite';
 
