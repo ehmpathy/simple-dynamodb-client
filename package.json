@@ -50,7 +50,7 @@
     "postinstall": "[ -d .git ] && npx husky install || exit 0"
   },
   "dependencies": {
-    "aws-sdk": "2.517.0"
+    "aws-sdk": "^2.517.0"
   },
   "devDependencies": {
     "@commitlint/cli": "17.6.7",
