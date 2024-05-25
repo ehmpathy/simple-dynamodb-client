@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2](https://github.com/ehmpathy/simple-dynamodb-client/compare/v0.10.1...v0.10.2) (2024-05-25)
+
+
+### Bug Fixes
+
+* **practs:** upgrade to latest best ([#12](https://github.com/ehmpathy/simple-dynamodb-client/issues/12)) ([acbed8c](https://github.com/ehmpathy/simple-dynamodb-client/commit/acbed8c0426418cf9024bb066a14944dbdf537f8))
+
 ### [0.10.1](https://www.github.com/ehmpathy/simple-dynamodb-client/compare/v0.10.0...v0.10.1) (2024-05-25)
 
 
